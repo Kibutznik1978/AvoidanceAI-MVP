@@ -1,1 +1,862 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AvoidanceAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .nav-menu {
+            flex: 1;
+            padding: 24px 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 32px;
+        }
+        
+        .nav-section-title {
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            padding: 0 24px 12px;
+            letter-spacing: 0.05em;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+        
+        .nav-item.active {
+            background: #eff6ff;
+            color: #2563eb;
+            border-left-color: #2563eb;
+        }
+        
+        .nav-icon {
+            font-size: 1.2em;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.9em;
+        }
+        
+        .user-plan {
+            font-size: 0.8em;
+            color: #6b7280;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-bar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .top-bar-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+        
+        .page-section {
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            padding: 24px 24px 0;
+        }
+        
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .card-description {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .card-content {
+            padding: 24px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.5em;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: 0.2s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+        
+        .toggle-input:checked + .toggle-slider {
+            background-color: #2563eb;
+        }
+        
+        .toggle-input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .billing-plan {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .billing-plan.current {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            left: 24px;
+            background: #2563eb;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .plan-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .plan-price {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 16px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+        
+        .plan-features li {
+            padding: 4px 0;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feature-check {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .usage-bar {
+            background: #f3f4f6;
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .usage-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+        
+        .usage-text {
+            font-size: 0.8em;
+            color: #6b7280;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+        
+        .activity-time {
+            font-size: 0.8em;
+            color: #6b7280;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .overlay.show {
+                display: block;
+            }
+            
+            .content-area {
+                padding: 16px;
+            }
+            
+            .top-bar {
+                padding: 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    🎯 AvoidanceAI
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="#" class="nav-item active" data-page="overview">
+                        <span class="nav-icon">📊</span>
+                        Overview
+                    </a>
+                    <a href="#" class="nav-item" data-page="analytics">
+                        <span class="nav-icon">📈</span>
+                        Analytics
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="#" class="nav-item" data-page="profile">
+                        <span class="nav-icon">👤</span>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-item" data-page="billing">
+                        <span class="nav-icon">💳</span>
+                        Billing & Plans
+                    </a>
+                    <a href="#" class="nav-item" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Support</div>
+                    <a href="#" class="nav-item" data-page="help">
+                        <span class="nav-icon">❓</span>
+                        Help Center
+                    </a>
+                    <a href="#" class="nav-item" onclick="logout()">
+                        <span class="nav-icon">🚪</span>
+                        Sign Out
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">GS</div>
+                    <div class="user-info">
+                        <div class="user-name">Gilad Swerdlow</div>
+                        <div class="user-plan">Professional Plan</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                    <h1 class="page-title" id="pageTitle">Dashboard Overview</h1>
+                </div>
+                <div class="top-bar-actions">
+                    <a href="#" class="btn btn-secondary" onclick="runNewAnalysis()">
+                        📧 Run New Analysis
+                    </a>
+                    <a href="#" class="btn btn-primary">
+                        🚀 Upgrade Plan
+                    </a>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Overview Page -->
+                <div class="page-section active" id="overview">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca);">🚨</div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Urgent Items Avoided</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe);">📈</div>
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-label">Emails Analyzed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">⏱️</div>
+                            <div class="stat-value">8.3</div>
+                            <div class="stat-label">Days Avg Delay</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);">✅</div>
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">Items Completed</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Recent Analysis Results</h2>
+                                <p class="card-description">Your latest procrastination insights and action items</p>
+                            </div>
+                            <div class="card-content">
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: #fee2e2; color: #dc2626;">🚨</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">Domain Registration Renewal</div>
+                                        <div class="activity-time">Expires in 8 days - High Priority</div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" onclick="openEmailFromDashboard('domain')">
+                                        View Email
+                                    </button>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: #fef3c7; color: #d97706;">💼</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">Client Proposal Responses</div>
+                                        <div class="activity-time">$15K revenue potential - 2 weeks overdue</div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" onclick="openEmailFromDashboard('proposals')">
+                                        View Email
+                                    </button>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: #dbeafe; color: #2563eb;">🤝</div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">LinkedIn Network Management</div>
+                                        <div class="activity-time">5 connections pending for 3 weeks</div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" onclick="openEmailFromDashboard('linkedin')">
+                                        View Email
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Usage This Month</h2>
+                                <p class="card-description">Your current plan usage</p>
+                            </div>
+                            <div class="card-content">
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="font-weight: 500;">Email Analyses</span>
+                                        <span>7 / 50</span>
+                                    </div>
+                                    <div class="usage-bar">
+                                        <div class="usage-fill" style="width: 14%;"></div>
+                                    </div>
+                                    <div class="usage-text">43 analyses remaining</div>
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="font-weight: 500;">AI Insights</span>
+                                        <span>156 / 1000</span>
+                                    </div>
+                                    <div class="usage-bar">
+                                        <div class="usage-fill" style="width: 15.6%;"></div>
+                                    </div>
+                                    <div class="usage-text">844 insights remaining</div>
+                                </div>
+                                
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="font-weight: 500;">Email Storage</span>
+                                        <span>2.3 / 10 GB</span>
+                                    </div>
+                                    <div class="usage-bar">
+                                        <div class="usage-fill" style="width: 23%;"></div>
+                                    </div>
+                                    <div class="usage-text">7.7 GB remaining</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Page -->
+                <div class="page-section" id="analytics">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Procrastination Analytics</h2>
+                            <p class="card-description">Detailed insights into your email behavior patterns</p>
+                        </div>
+                        <div class="card-content">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                                <div>
+                                    <h4 style="margin-bottom: 16px; color: #374151;">Categories Most Avoided</h4>
+                                    <div style="space-y: 12px;">
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                                <span>Administrative Tasks</span>
+                                                <span style="font-weight: 600; color: #dc2626;">73%</span>
+                                            </div>
+                                            <div class="usage-bar">
+                                                <div style="background: #dc2626; height: 100%; width: 73%;"></div>
+                                            </div>
+                                        </div>
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                                <span>Networking</span>
+                                                <span style="font-weight: 600; color: #f59e0b;">58%</span>
+                                            </div>
+                                            <div class="usage-bar">
+                                                <div style="background: #f59e0b; height: 100%; width: 58%;"></div>
+                                            </div>
+                                        </div>
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                                <span>Financial Planning</span>
+                                                <span style="font-weight: 600; color: #3b82f6;">42%</span>
+                                            </div>
+                                            <div class="usage-bar">
+                                                <div style="background: #3b82f6; height: 100%; width: 42%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 style="margin-bottom: 16px; color: #374151;">Response Time Trends</h4>
+                                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                                        <div style="text-align: center; color: #6b7280;">
+                                            📊 Chart visualization would appear here
+                                            <br><br>
+                                            Showing response time improvements over the last 6 months
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Page -->
+                <div class="page-section" id="profile">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Profile Information</h2>
+                            <p class="card-description">Manage your account details and preferences</p>
+                        </div>
+                        <div class="card-content">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-input" value="Gilad Swerdlow">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-input" value="giladswerdlow@gmail.com">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Job Title</label>
+                                    <input type="text" class="form-input" value="B757/767 Captain / Check Airman">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Company</label>
+                                    <input type="text" class="form-input" value="UPS">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Time Zone</label>
+                                    <select class="form-select">
+                                        <option>Pacific Time (PT)</option>
+                                        <option>Mountain Time (MT)</option>
+                                        <option>Central Time (CT)</option>
+                                        <option>Eastern Time (ET)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Language</label>
+                                    <select class="form-select">
+                                        <option>English</option>
+                                        <option>Spanish</option>
+                                        <option>French</option>
+                                        <option>German</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="margin-top: 24px;">
+                                <button class="btn btn-primary">Save Changes</button>
+                                <button class="btn btn-secondary" style="margin-left: 12px;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Billing Page -->
+                <div class="page-section" id="billing">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Current Plan</h2>
+                            <p class="card-description">Manage your subscription and billing information</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="billing-plan current">
+                                <div class="plan-badge">Current Plan</div>
+                                <div class="plan-name">Professional</div>
+                                <div class="plan-price">$29<span style="font-size: 0.5em; color: #6b7280;">/month</span></div>
+                                <ul class="plan-features">
+                                    <li><span class="feature-check">✓</span> Weekly email analysis</li>
+                                    <li><span class="feature-check">✓</span> Advanced AI insights</li>
+                                    <li><span class="feature-check">✓</span> Custom action plans</li>
+                                    <li><span class="feature-check">✓</span> Progress tracking</li>
+                                    <li><span class="feature-check">✓</span> Calendar integration</li>
+                                    <li><span class="feature-check">✓</span> Priority support</li>
+                                </ul>
+                                <button class="btn btn-secondary">Manage Subscription</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Billing History</h2>
+                            <p class="card-description">View your past invoices and payments</p>
+                        </div>
+                        <div class="card-content">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                                            <th style="text-align: left; padding: 12px 0; color: #6b7280; font-weight: 500;">Date</th>
