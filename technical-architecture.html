@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AvoidanceAI - Technical Architecture</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .section h2 {
+            color: #1e40af;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stack-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .stack-item h3 {
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .architecture-diagram {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            font-family: monospace;
+            line-height: 1.8;
+        }
+        
+        .data-flow {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .phase {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #10b981;
+        }
+        
+        .phase h4 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+        
+        .api-endpoint {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .security-item {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .cost-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .cost-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .cost-amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #059669;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3b82f6;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -37px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+        
+        .priority {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .high { background: #ef4444; }
+        .medium { background: #f59e0b; }
+        .low { background: #10b981; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ AvoidanceAI Technical Architecture</h1>
+            <p>Complete system design and MVP implementation roadmap</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>🏢 System Architecture Overview</h2>
+                <div class="architecture-diagram">
+                    <strong>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐</strong><br>
+                    <strong>│   Frontend      │◄──►│   Backend API   │◄──►│   AI/ML Engine  │</strong><br>
+                    <strong>│   React/Next.js │    │   Node.js/Python│    │   OpenAI/Custom │</strong><br>
+                    <strong>└─────────────────┘    └─────────────────┘    └─────────────────┘</strong><br>
+                    <strong>         │                       │                       │</strong><br>
+                    <strong>         ▼                       ▼                       ▼</strong><br>
+                    <strong>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐</strong><br>
+                    <strong>│   User Auth     │    │   PostgreSQL    │    │   Vector DB     │</strong><br>
+                    <strong>│   OAuth/JWT     │    │   Primary Data  │    │   Embeddings    │</strong><br>
+                    <strong>└─────────────────┘    └─────────────────┘    └─────────────────┘</strong><br>
+                    <strong>         │                       │                       │</strong><br>
+                    <strong>         ▼                       ▼                       ▼</strong><br>
+                    <strong>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐</strong><br>
+                    <strong>│   Gmail API     │    │   Redis Cache   │    │   Background     │</strong><br>
+                    <strong>│   Google OAuth  │    │   Sessions      │    │   Jobs Queue    │</strong><br>
+                    <strong>└─────────────────┘    └─────────────────┘    └─────────────────┘</strong>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🛠️ Technology Stack</h2>
+                <div class="tech-stack">
+                    <div class="stack-item">
+                        <h3>⚛️ Frontend</h3>
+                        <ul>
+                            <li><strong>Next.js 14</strong> - React framework with SSR</li>
+                            <li><strong>TypeScript</strong> - Type safety</li>
+                            <li><strong>Tailwind CSS</strong> - Utility-first styling</li>
+                            <li><strong>Recharts</strong> - Data visualization</li>
+                            <li><strong>React Query</strong> - Data fetching & caching</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stack-item">
+                        <h3>🔧 Backend</h3>
+                        <ul>
+                            <li><strong>Node.js + Express</strong> - API server</li>
+                            <li><strong>Python FastAPI</strong> - ML/AI processing</li>
+                            <li><strong>PostgreSQL</strong> - Primary database</li>
+                            <li><strong>Redis</strong> - Caching & sessions</li>
+                            <li><strong>Bull Queue</strong> - Background jobs</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stack-item">
+                        <h3>🤖 AI/ML</h3>
+                        <ul>
+                            <li><strong>OpenAI GPT-4</strong> - Text analysis</li>
+                            <li><strong>Hugging Face</strong> - Custom models</li>
+                            <li><strong>Pinecone</strong> - Vector database</li>
+                            <li><strong>LangChain</strong> - LLM orchestration</li>
+                            <li><strong>spaCy</strong> - NLP preprocessing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stack-item">
+                        <h3>☁️ Infrastructure</h3>
+                        <ul>
+                            <li><strong>Vercel</strong> - Frontend hosting</li>
+                            <li><strong>Railway</strong> - Backend deployment</li>
+                            <li><strong>Supabase</strong> - Database & auth</li>
+                            <li><strong>Upstash</strong> - Redis hosting</li>
+                            <li><strong>Stripe</strong> - Payment processing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 Data Flow Architecture</h2>
+                <div class="data-flow">
+                    <h4>1. User Authentication & Gmail Connection</h4>
+                    <div class="api-endpoint">
+                        POST /api/auth/google
+                        → Google OAuth → Store tokens → Create user session
+                    </div>
+                    
+                    <h4>2. Email Data Ingestion</h4>
+                    <div class="api-endpoint">
+                        POST /api/analysis/start
+                        → Gmail API fetch → Parse emails → Queue for analysis
+                    </div>
+                    
+                    <h4>3. AI Processing Pipeline</h4>
+                    <div class="api-endpoint">
+                        Background Job → Email preprocessing → LLM analysis → 
+                        Pattern detection → Store results → Notify user
+                    </div>
+                    
+                    <h4>4. Report Generation</h4>
+                    <div class="api-endpoint">
+                        GET /api/reports/:userId
+                        → Aggregate data → Generate insights → Return JSON
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔐 Security & Privacy</h2>
+                <div class="security-item">
+                    <strong>🛡️ Data Protection:</strong> All email content processed in memory only, never stored permanently. Analysis results stored as aggregated insights only.
+                </div>
+                
+                <div class="security-item">
+                    <strong>🔑 Authentication:</strong> Google OAuth 2.0 with minimal scope requests. JWT tokens for session management with short expiry.
+                </div>
+                
+                <div class="security-item">
+                    <strong>🌐 API Security:</strong> Rate limiting, input validation, CORS policies, and encrypted data transmission via HTTPS only.
+                </div>
+                
+                <div class="security-item">
+                    <strong>📝 Compliance:</strong> GDPR compliant with right to deletion, SOC 2 Type II certification path, and transparent privacy policy.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Database Schema</h2>
+                <div class="api-endpoint">
+-- Users table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  google_id VARCHAR(255) UNIQUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  subscription_tier VARCHAR(50) DEFAULT 'free',
+  last_analysis TIMESTAMP
+);
+
+-- Analysis Results table  
+CREATE TABLE analysis_results (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  total_emails_analyzed INTEGER,
+  urgent_items_count INTEGER,
+  avg_response_delay FLOAT,
+  procrastination_score FLOAT,
+  insights JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Procrastination Patterns table
+CREATE TABLE procrastination_patterns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  pattern_type VARCHAR(100),
+  confidence_score FLOAT,
+  examples JSONB,
+  suggested_actions JSONB
+);
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>💰 Cost Breakdown (Monthly)</h2>
+                <div class="cost-breakdown">
+                    <div class="cost-item">
+                        <div class="cost-amount">$150</div>
+                        <div>OpenAI API (1000 users)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="cost-amount">$50</div>
+                        <div>Database (Supabase Pro)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="cost-amount">$30</div>
+                        <div>Hosting (Vercel Pro)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="cost-amount">$25</div>
+                        <div>Redis (Upstash)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="cost-amount">$20</div>
+                        <div>Vector DB (Pinecone)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="cost-amount">$275</div>
+                        <div><strong>Total Monthly</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 MVP Development Timeline</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>Week 1-2: Foundation <span class="priority high">HIGH</span></h4>
+                        <ul>
+                            <li>Set up Next.js project with TypeScript</li>
+                            <li>Implement Google OAuth authentication</li>
+                            <li>Create basic UI/UX wireframes</li>
+                            <li>Set up database schema</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Week 3-4: Gmail Integration <span class="priority high">HIGH</span></h4>
+                        <ul>
+                            <li>Gmail API integration and email fetching</li>
+                            <li>Email parsing and data extraction</li>
+                            <li>Basic procrastination pattern detection</li>
+                            <li>Simple analysis dashboard</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Week 5-6: AI Analysis Engine <span class="priority high">HIGH</span></h4>
+                        <ul>
+                            <li>OpenAI integration for email analysis</li>
+                            <li>Pattern recognition algorithms</li>
+                            <li>Insight generation and scoring</li>
+                            <li>Background job processing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Week 7-8: User Experience <span class="priority medium">MEDIUM</span></h4>
+                        <ul>
+                            <li>Polished dashboard with charts</li>
+                            <li>Action item prioritization</li>
+                            <li>Email notifications and alerts</li>
+                            <li>Mobile responsive design</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Week 9-10: Monetization <span class="priority medium">MEDIUM</span></h4>
+                        <ul>
+                            <li>Stripe payment integration</li>
+                            <li>Subscription tiers implementation</li>
+                            <li>Usage limits and premium features</li>
+                            <li>Billing dashboard</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Week 11-12: Launch Prep <span class="priority low">LOW</span></h4>
+                        <ul>
+                            <li>Performance optimization</li>
+                            <li>Security audit and testing</li>
+                            <li>Analytics and monitoring setup</li>
+                            <li>Documentation and onboarding</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎯 MVP Feature Scope</h2>
+                <div class="phase">
+                    <h4>✅ Core Features (Must Have)</h4>
+                    <ul>
+                        <li>Google OAuth + Gmail API integration</li>
+                        <li>Basic email analysis (deadlines, response patterns)</li>
+                        <li>Simple procrastination scoring</li>
+                        <li>Dashboard with key metrics</li>
+                        <li>One-time analysis with manual trigger</li>
+                    </ul>
+                </div>
+                
+                <div class="phase">
+                    <h4>🔄 Enhanced Features (Should Have)</h4>
+                    <ul>
+                        <li>Automated weekly analysis</li>
+                        <li>Email categorization (urgent, networking, admin)</li>
+                        <li>Progress tracking over time</li>
+                        <li>Basic subscription tiers</li>
+                        <li>Email export of insights</li>
+                    </ul>
+                </div>
+                
+                <div class="phase">
+                    <h4>🚀 Advanced Features (Nice to Have)</h4>
+                    <ul>
+                        <li>Calendar integration</li>
+                        <li>Team collaboration features</li>
+                        <li>Custom pattern training</li>
+                        <li>API for third-party integrations</li>
+                        <li>Mobile app</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
