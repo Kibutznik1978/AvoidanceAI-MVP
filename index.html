@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AvoidanceAI - Stop Procrastinating on Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 600px;
+        }
+        
+        .app-state {
+            padding: 40px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Connect State */
+        .connect-state {
+            text-align: center;
+        }
+        
+        .connect-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+        
+        .connect-state h2 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .connect-state p {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        
+        .gmail-btn {
+            background: #ea4335;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(234, 67, 53, 0.3);
+        }
+        
+        .gmail-btn:hover {
+            background: #d33b2c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(234, 67, 53, 0.4);
+        }
+        
+        .gmail-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            display: none;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #374151;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            height: 6px;
+            border-radius: 3px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Results State */
+        .results-state {
+            display: none;
+            padding: 30px;
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .results-header h2 {
+            color: #1f2937;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .results-subtitle {
+            color: #6b7280;
+            font-size: 1.1em;
+        }
+        
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .metric {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .score-section {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .score-title {
+            color: #dc2626;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#ef4444 0deg, #ef4444 252deg, #e5e7eb 252deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .score-inner {
+            width: 75px;
+            height: 75px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #ef4444;
+        }
+        
+        .score-description {
+            color: #7f1d1d;
+            font-weight: 500;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .category-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .category-icon {
+            font-size: 1.8em;
+            width: 50px;
+            text-align: center;
+        }
+        
+        .category-details {
+            flex: 1;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .category-description {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .category-count {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .priority-section {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .priority-header {
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .priority-high { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .priority-medium { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .priority-low { background: linear-gradient(135deg, #10b981, #059669); }
+        
+        .priority-badge-header {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        
+        .priority-content {
+            padding: 20px 25px;
+        }
+        
+        .section-title {
+            color: #1f2937;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .insight-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f59e0b;
+            transition: transform 0.2s ease;
+        }
+        
+        .insight-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .insight-title {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .insight-description {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .actions-section {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .action-item {
+            background: white;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #3b82f6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .action-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left-color: #1d4ed8;
+        }
+        
+        .action-item:hover .action-title {
+            color: #1d4ed8;
+        }
+        
+        .action-content {
+            flex: 1;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .action-detail {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .priority-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .urgent { background: #ef4444; }
+        .important { background: #f59e0b; }
+        .moderate { background: #10b981; }
+        
+        .upgrade-banner {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 12px;
+        }
+        
+        .upgrade-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .upgrade-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+        
+        .reset-btn {
+            background: transparent;
+            border: 2px solid #6b7280;
+            color: #6b7280;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            border-color: #374151;
+            color: #374151;
+        }
+        
+        /* Email Modal Styles */
+        .email-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .email-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 25px;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .email-subject {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .email-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .email-body {
+            padding: 25px;
+            line-height: 1.6;
+            color: #374151;
+        }
+        
+        .email-actions {
+            padding: 20px 25px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 15px;
+            background: #f8fafc;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .email-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .email-btn-primary {
+            background: #ea4335;
+            color: white;
+        }
+        
+        .email-btn-primary:hover {
+            background: #d33b2c;
+        }
+        
+        .email-btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .email-btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: #374151;
+        }
+        
+        .clickable-hint {
+            font-size: 0.8em;
+            color: #3b82f6;
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .action-item:hover .clickable-hint {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .app-state {
+                padding: 30px 20px;
+            }
+            
+            .category-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .category-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .priority-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .priority-header h4 {
+                font-size: 1.1em;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AvoidanceAI</h1>
+            <p>Discover what you're avoiding in your email and take action</p>
+        </div>
+        
+        <div class="main-card">
+            <!-- Connect State -->
+            <div id="connectState" class="app-state connect-state">
+                <div class="connect-icon">📧</div>
+                <h2>Connect Your Gmail</h2>
+                <p>Our AI will analyze your email patterns to identify what you're procrastinating on and help you prioritize what matters most.</p>
+                <button class="gmail-btn" onclick="startAnalysis()" id="connectBtn">
+                    <span>🔒</span>
+                    Connect Gmail Securely
+                </button>
+                <p style="font-size: 0.9em; color: #9ca3af; margin-top: 20px;">
+                    Your emails are processed securely and never stored
+                </p>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="app-state loading-state">
+                <div class="spinner"></div>
+                <div class="loading-text" id="loadingText">Connecting to Gmail...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p style="color: #6b7280; margin-top: 20px;">
+                    This may take a few moments while we analyze your email patterns
+                </p>
+            </div>
+            
+            <!-- Results State -->
+            <div id="resultsState" class="results-state">
+                <div class="results-header">
+                    <h2>Your Procrastination Analysis</h2>
+                    <p class="results-subtitle">Based on analysis of <span id="emailCount">1,247</span> emails from the last 6 months</p>
+                </div>
+                
+                <div class="actions-section">
+                    <h3 class="section-title">🎯 Prioritized Action Plan</h3>
+                    
+                    <div class="priority-section">
+                        <div class="priority-header priority-high">
+                            <h4>🚨 High Priority - Immediate Action Required</h4>
+                            <span class="priority-badge-header">URGENT</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="action-item" onclick="openEmail('domain')">
+                                <div class="action-content">
+                                    <div class="action-title">Domain Registration Renewal</div>
+                                    <div class="action-detail">SWERDLOWCONSULTING.COM expires in 8 days - potential business disruption</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge urgent">URGENT</span>
+                            </div>
+                            <div class="action-item" onclick="openEmail('proposals')">
+                                <div class="action-content">
+                                    <div class="action-title">Client Proposal Responses</div>
+                                    <div class="action-detail">3 proposals worth $15K total waiting for response over 2 weeks</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge urgent">URGENT</span>
+                            </div>
+                            <div class="action-item" onclick="openEmail('insurance')">
+                                <div class="action-content">
+                                    <div class="action-title">Insurance Policy Renewal</div>
+                                    <div class="action-detail">Professional liability insurance expires in 12 days</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge urgent">URGENT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="priority-section">
+                        <div class="priority-header priority-medium">
+                            <h4>⚠️ Medium Priority - Professional Development</h4>
+                            <span class="priority-badge-header">IMPORTANT</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="action-item" onclick="openEmail('linkedin')">
+                                <div class="action-content">
+                                    <div class="action-title">LinkedIn Network Management</div>
+                                    <div class="action-detail">5 professional connections pending, 3 from industry leaders</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge important">IMPORTANT</span>
+                            </div>
+                            <div class="action-item" onclick="openEmail('conference')">
+                                <div class="action-content">
+                                    <div class="action-title">Conference Speaking Opportunity</div>
+                                    <div class="action-detail">Aviation industry conference invitation - deadline in 3 weeks</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge important">IMPORTANT</span>
+                            </div>
+                            <div class="action-item" onclick="openEmail('certification')">
+                                <div class="action-content">
+                                    <div class="action-title">Professional Certification Renewal</div>
+                                    <div class="action-detail">Pilot certification paperwork needs completion</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge important">IMPORTANT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="priority-section">
+                        <div class="priority-header priority-low">
+                            <h4>📝 Low Priority - Administrative & Personal</h4>
+                            <span class="priority-badge-header">ROUTINE</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="action-item" onclick="openEmail('family')">
+                                <div class="action-content">
+                                    <div class="action-title">Family Calendar Responses</div>
+                                    <div class="action-detail">RSVP to family events and schedule confirmations</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge moderate">ROUTINE</span>
+                            </div>
+                            <div class="action-item" onclick="openEmail('subscriptions')">
+                                <div class="action-content">
+                                    <div class="action-title">Subscription Management</div>
+                                    <div class="action-detail">Review and optimize 4 recurring software subscriptions</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge moderate">ROUTINE</span>
+                            </div>
+                            <div class="action-item" onclick="openEmail('newsletters')">
+                                <div class="action-content">
+                                    <div class="action-title">Newsletter Preferences</div>
+                                    <div class="action-detail">Update industry newsletter subscriptions and preferences</div>
+                                    <div class="clickable-hint">Click to view email →</div>
+                                </div>
+                                <span class="priority-badge moderate">ROUTINE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metrics-row">
+                    <div class="metric">
+                        <div class="metric-value" id="urgentItems">12</div>
+                        <div class="metric-label">Urgent Items Avoided</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="avgDelay">8.3</div>
+                        <div class="metric-label">Days Average Delay</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="missedOpps">7</div>
+                        <div class="metric-label">Opportunities Missed</div>
+                    </div>
+                </div>
+                
+                <div class="score-section">
+                    <div class="score-title">Your Procrastination Risk Score</div>
+                    <div class="score-circle">
+                        <div class="score-inner" id="riskScore">72</div>
+                    </div>
+                    <div class="score-description">
+                        High Risk - You're avoiding important tasks that could impact your goals
+                    </div>
+                </div>
+                
+                <div class="insights-section">
+                    <h3 class="section-title">📂 Email Categories Analysis</h3>
+                    <div class="categories-grid">
+                        <div class="category-item">
+                            <div class="category-info">
+                                <div class="category-icon">🚨</div>
+                                <div class="category-details">
+                                    <div class="category-name">Urgent/Deadlines</div>
+                                    <div class="category-description">Time-sensitive items requiring immediate action</div>
+                                </div>
+                            </div>
+                            <div class="category-count" id="urgentCategory">23</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-info">
+                                <div class="category-icon">🤝</div>
+                                <div class="category-details">
+                                    <div class="category-name">Networking</div>
+                                    <div class="category-description">Professional connections and opportunities</div>
+                                </div>
+                            </div>
+                            <div class="category-count" id="networkingCategory">15</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-info">
+                                <div class="category-icon">💼</div>
+                                <div class="category-details">
+                                    <div class="category-name">Business Opportunities</div>
+                                    <div class="category-description">Potential revenue and growth opportunities</div>
+                                </div>
+                            </div>
+                            <div class="category-count" id="businessCategory">8</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-info">
+                                <div class="category-icon">📋</div>
+                                <div class="category-details">
+                                    <div class="category-name">Administrative</div>
+                                    <div class="category-description">Forms, renewals, and routine tasks</div>
+                                </div>
+                            </div>
+                            <div class="category-count" id="adminCategory">34</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-info">
+                                <div class="category-icon">💰</div>
+                                <div class="category-details">
+                                    <div class="category-name">Financial</div>
+                                    <div class="category-description">Bills, taxes, and financial planning</div>
+                                </div>
+                            </div>
+                            <div class="category-count" id="financialCategory">12</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insights-section">
+                    <h3 class="section-title">🔍 Key Patterns Detected</h3>
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            ⏰ Deadline Anxiety
+                        </div>
+                        <div class="insight-description">
+                            You delay responding to emails with deadlines by an average of 8.3 days, suggesting overwhelm with time-sensitive tasks.
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            🤝 Networking Avoidance
+                        </div>
+                        <div class="insight-description">
+                            15 networking opportunities (LinkedIn invites, conference requests) remain unresponded to for over 3 weeks.
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            📋 Administrative Bottleneck
+                        </div>
+                        <div class="insight-description">
+                            Administrative tasks show 73% delayed response rate - the highest avoidance category in your email.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="actions-section">
+                    <h3 class="section-title">🎯 Prioritized Action Plan</h3>
+                    
+                    <div class="priority-section">
+                        <div class="priority-header priority-high">
+                            <h4>🚨 High Priority - Immediate Action Required</h4>
+                            <span class="priority-badge-header">URGENT</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Domain Registration Renewal</div>
+                                    <div class="action-detail">SWERDLOWCONSULTING.COM expires in 8 days - potential business disruption</div>
+                                </div>
+                                <span class="priority-badge urgent">URGENT</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Client Proposal Responses</div>
+                                    <div class="action-detail">3 proposals worth $15K total waiting for response over 2 weeks</div>
+                                </div>
+                                <span class="priority-badge urgent">URGENT</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Insurance Policy Renewal</div>
+                                    <div class="action-detail">Professional liability insurance expires in 12 days</div>
+                                </div>
+                                <span class="priority-badge urgent">URGENT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="priority-section">
+                        <div class="priority-header priority-medium">
+                            <h4>⚠️ Medium Priority - Professional Development</h4>
+                            <span class="priority-badge-header">IMPORTANT</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">LinkedIn Network Management</div>
+                                    <div class="action-detail">5 professional connections pending, 3 from industry leaders</div>
+                                </div>
+                                <span class="priority-badge important">IMPORTANT</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Conference Speaking Opportunity</div>
+                                    <div class="action-detail">Aviation industry conference invitation - deadline in 3 weeks</div>
+                                </div>
+                                <span class="priority-badge important">IMPORTANT</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Professional Certification Renewal</div>
+                                    <div class="action-detail">Pilot certification paperwork needs completion</div>
+                                </div>
+                                <span class="priority-badge important">IMPORTANT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="priority-section">
+                        <div class="priority-header priority-low">
+                            <h4>📝 Low Priority - Administrative & Personal</h4>
+                            <span class="priority-badge-header">ROUTINE</span>
+                        </div>
+                        <div class="priority-content">
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Family Calendar Responses</div>
+                                    <div class="action-detail">RSVP to family events and schedule confirmations</div>
+                                </div>
+                                <span class="priority-badge moderate">ROUTINE</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Subscription Management</div>
+                                    <div class="action-detail">Review and optimize 4 recurring software subscriptions</div>
+                                </div>
+                                <span class="priority-badge moderate">ROUTINE</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-content">
+                                    <div class="action-title">Newsletter Preferences</div>
+                                    <div class="action-detail">Update industry newsletter subscriptions and preferences</div>
+                                </div>
+                                <span class="priority-badge moderate">ROUTINE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upgrade-banner">
+                    <h3 style="margin-bottom: 10px;">🚀 Get Weekly Insights & Progress Tracking</h3>
+                    <p>Upgrade to Pro for automated analysis, trends, and personalized coaching</p>
+                    <button class="upgrade-btn" onclick="showUpgrade()">
+                        Upgrade to Pro - $29/month
+                    </button>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="reset-btn" onclick="resetApp()">
+                        Try Another Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Email Modal -->
+        <div id="emailModal" class="email-modal" onclick="closeEmailModal(event)">
+            <div class="email-modal-content" onclick="event.stopPropagation()">
+                <button class="close-modal" onclick="closeEmailModal()">&times;</button>
+                <div class="email-header">
+                    <div class="email-subject" id="emailSubject">Email Subject</div>
+                    <div class="email-meta">
+                        <span id="emailFrom">From: sender@example.com</span>
+                        <span id="emailDate">3 days ago</span>
+                    </div>
+                </div>
+                <div class="email-body" id="emailBody">
+                    Email content will appear here...
+                </div>
+                <div class="email-actions">
+                    <button class="email-btn email-btn-primary" onclick="openInGmail()">
+                        📧 Open in Gmail
+                    </button>
+                    <button class="email-btn email-btn-secondary" onclick="closeEmailModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentState = 'connect'; // connect, loading, results
+        
+        function startAnalysis() {
+            if (currentState !== 'connect') return;
+            
+            currentState = 'loading';
+            document.getElementById('connectState').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'flex';
+            
+            simulateAnalysis();
+        }
+        
+        function simulateAnalysis() {
+            const steps = [
+                { progress: 15, text: 'Authenticating with Google...' },
+                { progress: 35, text: 'Fetching recent emails...' },
+                { progress: 55, text: 'Analyzing response patterns...' },
+                { progress: 75, text: 'Detecting procrastination signals...' },
+                { progress: 90, text: 'Generating personalized insights...' },
+                { progress: 100, text: 'Finalizing your report...' }
+            ];
+            
+            let currentStep = 0;
+            
+            function updateProgress() {
+                if (currentStep < steps.length) {
+                    const step = steps[currentStep];
+                    document.getElementById('progressFill').style.width = step.progress + '%';
+                    document.getElementById('loadingText').textContent = step.text;
+                    currentStep++;
+                    
+                    setTimeout(updateProgress, 800 + Math.random() * 800);
+                } else {
+                    setTimeout(showResults, 1000);
+                }
+            }
+            
+            updateProgress();
+        }
+        
+        function showResults() {
+            currentState = 'results';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsState').style.display = 'block';
+            
+            // Animate in the results with realistic random data
+            animateMetrics();
+        }
+        
+        function animateMetrics() {
+            // Generate realistic random data
+            const emailCount = Math.floor(Math.random() * 1000) + 800;
+            const urgentItems = Math.floor(Math.random() * 15) + 5;
+            const avgDelay = (Math.random() * 10 + 3).toFixed(1);
+            const missedOpps = Math.floor(Math.random() * 12) + 3;
+            const riskScore = Math.floor(Math.random() * 30) + 55;
+            
+            // Generate category counts
+            const categories = {
+                urgent: Math.floor(Math.random() * 20) + 15,
+                networking: Math.floor(Math.random() * 15) + 8,
+                business: Math.floor(Math.random() * 10) + 5,
+                admin: Math.floor(Math.random() * 25) + 20,
+                financial: Math.floor(Math.random() * 15) + 8
+            };
+            
+            // Update the display
+            document.getElementById('emailCount').textContent = emailCount.toLocaleString();
+            document.getElementById('urgentItems').textContent = urgentItems;
+            document.getElementById('avgDelay').textContent = avgDelay;
+            document.getElementById('missedOpps').textContent = missedOpps;
+            document.getElementById('riskScore').textContent = riskScore;
+            
+            // Update category counts
+            document.getElementById('urgentCategory').textContent = categories.urgent;
+            document.getElementById('networkingCategory').textContent = categories.networking;
+            document.getElementById('businessCategory').textContent = categories.business;
+            document.getElementById('adminCategory').textContent = categories.admin;
+            document.getElementById('financialCategory').textContent = categories.financial;
+            
+            // Update the risk score circle
+            const scorePercentage = riskScore;
+            const degrees = (scorePercentage / 100) * 360;
+            const circle = document.querySelector('.score-circle');
+            circle.style.background = `conic-gradient(#ef4444 0deg, #ef4444 ${degrees}deg, #e5e7eb ${degrees}deg)`;
+        }
+        
+        function resetApp() {
+            currentState = 'connect';
+            currentEmailType = null;
+            
+            document.getElementById('resultsState').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('connectState').style.display = 'flex';
+            document.getElementById('emailModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Reset progress
+            document.getElementById('progressFill').style.width = '0%';
+        }
+        
+        function showUpgrade() {
+            alert('In the real app, this would redirect to Stripe checkout for subscription signup!');
+        }
+        
+        // Email modal functionality
+        const emailData = {
+            domain: {
+                subject: "Domain registration expires in 31 days - Action Required",
+                from: "HostGator <no-reply@account.hostgator.com>",
+                date: "4 days ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTC",
+                body: `<p>Hi Gilad,</p>
+                
+                <p>The domain name(s) specified below are about to expire. To avoid interruption or loss of ownership please renew your domain name prior to expiration.</p>
+                
+                <p><strong>Domain(s) Expiration Date:</strong><br>
+                SWERDLOWCONSULTING.COM - 08/13/2025</p>
+                
+                <p>If not renewed, your domain will expire on August 13, 2025.</p>
+                
+                <p style="background: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>⚠️ Critical:</strong> Domain expiration will cause website downtime and email disruption for your consulting business.
+                </p>
+                
+                <p>You can renew your domain by logging into your HostGator account or calling customer support at 866-964-2867.</p>
+                
+                <p>Sincerely,<br>HostGator Customer Support</p>`
+            },
+            proposals: {
+                subject: "Re: Aviation Consulting Proposal - Awaiting Your Response",
+                from: "Sarah Mitchell <sarah.mitchell@aviationcorp.com>",
+                date: "2 weeks ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTD",
+                body: `<p>Hi Gilad,</p>
+                
+                <p>I hope this email finds you well. I wanted to follow up on the aviation consulting proposal we discussed during our call last month.</p>
+                
+                <p><strong>Project Summary:</strong></p>
+                <ul>
+                <li>Safety protocol review for 3 regional airports</li>
+                <li>Pilot training program optimization</li>
+                <li>Timeline: 3 months</li>
+                <li>Budget: $15,000</li>
+                </ul>
+                
+                <p style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>💰 Revenue Impact:</strong> This is one of three similar proposals totaling $45K in potential revenue.
+                </p>
+                
+                <p>Our team is eager to move forward and would appreciate your thoughts on the proposal. Please let me know if you need any additional information or would like to schedule a call to discuss further.</p>
+                
+                <p>Looking forward to hearing from you soon.</p>
+                
+                <p>Best regards,<br>Sarah Mitchell<br>Aviation Corp</p>`
+            },
+            insurance: {
+                subject: "Professional Liability Insurance Renewal Notice",
+                from: "AeroInsure <renewals@aeroinsure.com>",
+                date: "1 week ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTE",
+                body: `<p>Dear Gilad Swerdlow,</p>
+                
+                <p>This is an important notice regarding your Professional Liability Insurance policy that expires on <strong>July 30, 2025</strong>.</p>
+                
+                <p><strong>Policy Details:</strong><br>
+                Policy Number: AL-7539842<br>
+                Coverage: Professional Liability - Aviation Consulting<br>
+                Current Premium: $2,400/year</p>
+                
+                <p style="background: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>🚨 Action Required:</strong> Your coverage will lapse in 12 days. Operating without professional liability insurance puts your consulting business at significant risk.
+                </p>
+                
+                <p>To renew your policy:</p>
+                <ol>
+                <li>Log into your AeroInsure portal</li>
+                <li>Review and update your coverage details</li>
+                <li>Complete payment by July 28, 2025</li>
+                </ol>
+                
+                <p>Questions? Call us at 1-800-AERO-INS</p>
+                
+                <p>AeroInsure Team</p>`
+            },
+            linkedin: {
+                subject: "Giuseppe Nicastro would like to connect with you",
+                from: "LinkedIn <messages-noreply@linkedin.com>",
+                date: "8 days ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTF",
+                body: `<p>Hi Gilad,</p>
+                
+                <p><strong>Giuseppe Nicastro</strong> wants to connect with you on LinkedIn.</p>
+                
+                <p><strong>Giuseppe Nicastro</strong><br>
+                Account Manager at MBE Worldwide<br>
+                Düsseldorf, Germany</p>
+                
+                <p><strong>4 mutual connections</strong> including industry leaders from UPS and aviation consulting.</p>
+                
+                <p style="background: #dbeafe; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>🤝 Networking Opportunity:</strong> Giuseppe's profile suggests potential business development opportunities in European aviation markets.
+                </p>
+                
+                <p>View Giuseppe's full profile and respond to the connection request on LinkedIn.</p>
+                
+                <p>Best,<br>The LinkedIn Team</p>`
+            },
+            conference: {
+                subject: "Speaking Opportunity - International Aviation Safety Conference 2025",
+                from: "Dr. Emily Chen <emily.chen@aviationsafety.org>",
+                date: "5 days ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTG",
+                body: `<p>Dear Captain Swerdlow,</p>
+                
+                <p>We would be honored to have you speak at the International Aviation Safety Conference 2025, taking place November 15-17 in Miami, Florida.</p>
+                
+                <p><strong>Proposed Session:</strong><br>
+                "Commercial Aviation Safety: Lessons from the Cockpit"<br>
+                45-minute presentation + 15-minute Q&A</p>
+                
+                <p><strong>Conference Details:</strong></p>
+                <ul>
+                <li>Expected attendance: 1,200+ aviation professionals</li>
+                <li>Speaker fee: $5,000 + travel expenses</li>
+                <li>Networking opportunities with industry leaders</li>
+                </ul>
+                
+                <p style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>🚀 Career Impact:</strong> High-profile speaking opportunity to establish thought leadership in aviation safety.
+                </p>
+                
+                <p><strong>Response needed by August 7, 2025</strong> to secure your speaking slot.</p>
+                
+                <p>Please let me know if you're interested and available.</p>
+                
+                <p>Best regards,<br>Dr. Emily Chen<br>Conference Director</p>`
+            },
+            certification: {
+                subject: "Pilot Certification Renewal - Documentation Required",
+                from: "FAA Certification <certifications@faa.gov>",
+                date: "10 days ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTH",
+                body: `<p>Dear Captain Swerdlow,</p>
+                
+                <p>This notice concerns your commercial pilot certification renewal due September 30, 2025.</p>
+                
+                <p><strong>Required Documentation:</strong></p>
+                <ul>
+                <li>Medical certificate renewal (Class 1)</li>
+                <li>Flight review completion certificate</li>
+                <li>Recent flight hours log (minimum 100 hours)</li>
+                <li>Continuing education credits (24 hours)</li>
+                </ul>
+                
+                <p style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>⚠️ Important:</strong> Failure to complete renewal by September 30 will result in certification suspension, affecting your ability to operate as PIC.
+                </p>
+                
+                <p>Submit documentation through the FAA online portal or schedule an appointment at your local FSDO office.</p>
+                
+                <p>Federal Aviation Administration<br>Certification Division</p>`
+            },
+            family: {
+                subject: "Courtyard meditation Shabbat at Solel - RSVP Needed",
+                from: "Joanna Swerdlow <joannaswerdlow@gmail.com>",
+                date: "3 hours ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTI",
+                body: `<p>Hi honey,</p>
+                
+                <p>Just wanted to remind you about the Courtyard meditation Shabbat at Solel this Friday, August 1st from 6-7pm.</p>
+                
+                <p>I know you've been stressed with work lately, and I think this would be really good for both of us. It's a beautiful outdoor setting and the meditation sessions have been really peaceful.</p>
+                
+                <p style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>👫 Family Time:</strong> This could be a nice opportunity to unwind together and connect after your busy travel schedule.
+                </p>
+                
+                <p>Can you let me know if you can make it? I need to RSVP by tomorrow.</p>
+                
+                <p>Also, don't forget about the water polo parent meeting on Tuesday, August 5th at 6:30pm.</p>
+                
+                <p>Love you! ❤️<br>Joanna</p>`
+            },
+            subscriptions: {
+                subject: "Your Zoom Pro subscription will auto-renew in 7 days",
+                from: "Zoom <noreply@zoom.us>",
+                date: "1 week ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTJ",
+                body: `<p>Hi Gilad,</p>
+                
+                <p>Your Zoom Pro subscription is set to auto-renew on July 24, 2025 for $149.90.</p>
+                
+                <p><strong>Current Subscription:</strong><br>
+                Zoom Pro Monthly - $14.99/month<br>
+                Next billing date: July 24, 2025</p>
+                
+                <p style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>💡 Optimization Opportunity:</strong> You're paying for 4 different video conferencing tools. Consider consolidating to save ~$200/year.
+                </p>
+                
+                <p>You can manage your subscription in your Zoom account settings.</p>
+                
+                <p>Questions? Contact Zoom support.</p>
+                
+                <p>The Zoom Team</p>`
+            },
+            newsletters: {
+                subject: "Update your Aviation Weekly newsletter preferences",
+                from: "Aviation Weekly <newsletters@aviationweekly.com>",
+                date: "2 weeks ago",
+                gmailId: "FMfcgzGtwHxKWMfBQqCkKldKrFBjKnTK",
+                body: `<p>Hi Gilad,</p>
+                
+                <p>We've noticed you haven't opened our newsletters in a while. Would you like to update your preferences to receive content that's more relevant to your interests?</p>
+                
+                <p><strong>Current Subscriptions:</strong></p>
+                <ul>
+                <li>Daily Aviation News</li>
+                <li>Safety Reports Weekly</li>
+                <li>Industry Career Updates</li>
+                <li>Technology & Innovation</li>
+                </ul>
+                
+                <p style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>📧 Email Management:</strong> You're subscribed to 23 industry newsletters. Consider curating to reduce inbox clutter.
+                </p>
+                
+                <p>Update your preferences or unsubscribe if our content is no longer relevant.</p>
+                
+                <p>Aviation Weekly Team</p>`
+            }
+        };
+        
+        let currentEmailType = null;
+        
+        function openEmail(emailType) {
+            const email = emailData[emailType];
+            if (!email) return;
+            
+            currentEmailType = emailType;
+            
+            document.getElementById('emailSubject').textContent = email.subject;
+            document.getElementById('emailFrom').textContent = `From: ${email.from}`;
+            document.getElementById('emailDate').textContent = email.date;
+            document.getElementById('emailBody').innerHTML = email.body;
+            document.getElementById('emailModal').style.display = 'block';
+            
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeEmailModal(event) {
+            // Only close if clicking the overlay or close button
+            if (!event || event.target.id === 'emailModal' || event.target.classList.contains('close-modal')) {
+                document.getElementById('emailModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                
+                // Reset button state
+                const gmailBtn = document.querySelector('.email-btn-primary');
+                if (gmailBtn) {
+                    gmailBtn.textContent = '📧 Open in Gmail';
+                    gmailBtn.style.background = '#ea4335';
+                    gmailBtn.disabled = false;
+                }
+                
+                currentEmailType = null;
+            }
+        }
+        
+        function openInGmail() {
+            if (!currentEmailType) return;
+            
+            const email = emailData[currentEmailType];
+            if (!email) return;
+            
+            // Show loading state
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '📧 Opening Gmail...';
+            btn.disabled = true;
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // In real implementation, this would open the specific email thread using Gmail API
+                // For demo purposes, we'll simulate the experience of opening the specific email
+                
+                // Create a demo Gmail email view instead of search
+                createGmailEmailView(email);
+                
+                // Show success message
+                btn.textContent = '✅ Opened in Gmail';
+                btn.style.background = '#10b981';
+                
+                // Auto-close modal after success
+                setTimeout(() => {
+                    closeEmailModal();
+                    
+                    // Show realistic next steps
+                    showGmailSuccessMessage(email.subject);
+                }, 1500);
+                
+            }, 800);
+        }
+        
+        function createGmailEmailView(email) {
+            // Try to open a new window (may be blocked by popup blocker)
+            let emailWindow;
+            try {
+                emailWindow = window.open('', '_blank', 'width=1200,height=800');
+            } catch (e) {
+                console.log('Popup blocked, using fallback');
+            }
+            
+            // Check if window opened successfully
+            if (!emailWindow || emailWindow.closed || typeof emailWindow.closed == 'undefined') {
+                // Popup was blocked - show fallback modal instead
+                showEmailInModal(email);
+                return;
+            }
+            
+            // Window opened successfully - create Gmail-like interface
+            try {
+                emailWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Gmail - ${email.subject}</title>
+                        <style>
+                            body {
+                                font-family: 'Google Sans', Roboto, Arial, sans-serif;
+                                margin: 0;
+                                background: #f6f8fc;
+                            }
+                            .gmail-header {
+                                background: white;
+                                padding: 16px 24px;
+                                border-bottom: 1px solid #dadce0;
+                                display: flex;
+                                align-items: center;
+                                gap: 16px;
+                            }
+                            .gmail-logo {
+                                color: #ea4335;
+                                font-size: 24px;
+                                font-weight: 500;
+                            }
+                            .gmail-content {
+                                max-width: 800px;
+                                margin: 24px auto;
+                                background: white;
+                                border-radius: 8px;
+                                box-shadow: 0 1px 3px rgba(60,64,67,0.3);
+                                overflow: hidden;
+                            }
+                            .email-header {
+                                padding: 20px 24px;
+                                border-bottom: 1px solid #dadce0;
+                            }
+                            .email-subject {
+                                font-size: 20px;
+                                font-weight: 400;
+                                color: #202124;
+                                margin-bottom: 8px;
+                            }
+                            .email-meta {
+                                color: #5f6368;
+                                font-size: 14px;
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            }
+                            .email-body {
+                                padding: 20px 24px;
+                                line-height: 1.6;
+                                color: #202124;
+                            }
+                            .gmail-actions {
+                                padding: 16px 24px;
+                                background: #f8f9fa;
+                                border-top: 1px solid #dadce0;
+                                display: flex;
+                                gap: 12px;
+                            }
+                            .gmail-btn {
+                                background: #1a73e8;
+                                color: white;
+                                border: none;
+                                padding: 8px 16px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 14px;
+                            }
+                            .gmail-btn:hover {
+                                background: #1557b0;
+                            }
+                            .demo-notice {
+                                background: #e8f0fe;
+                                color: #1558d6;
+                                padding: 12px 24px;
+                                text-align: center;
+                                font-size: 14px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="gmail-header">
+                            <div class="gmail-logo">📧 Gmail</div>
+                            <div style="color: #5f6368;">AvoidanceAI - Demo Email View</div>
+                        </div>
+                        
+                        <div class="demo-notice">
+                            🎯 AvoidanceAI Demo: This simulates opening the specific email in Gmail. In the real app, this would be the actual email thread.
+                        </div>
+                        
+                        <div class="gmail-content">
+                            <div class="email-header">
+                                <div class="email-subject">${email.subject}</div>
+                                <div class="email-meta">
+                                    <span>${email.from}</span>
+                                    <span>${email.date}</span>
+                                </div>
+                            </div>
+                            <div class="email-body">
+                                ${email.body}
+                            </div>
+                            <div class="gmail-actions">
+                                <button class="gmail-btn" onclick="alert('Reply functionality would work here in real Gmail!')">Reply</button>
+                                <button class="gmail-btn" style="background: #34a853;" onclick="alert('Forward functionality would work here in real Gmail!')">Forward</button>
+                                <button class="gmail-btn" style="background: #fbbc04; color: #202124;" onclick="alert('Archive functionality would work here in real Gmail!')">Archive</button>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 24px; color: #5f6368; font-size: 14px;">
+                            <p>✅ Successfully opened specific email referenced in AvoidanceAI action item</p>
+                            <p>In the real app, this would be the actual Gmail interface with full functionality</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                
+                emailWindow.document.close();
+            } catch (e) {
+                console.log('Error writing to popup window:', e);
+                emailWindow.close();
+                showEmailInModal(email);
+            }
+        }
+        
+        function showEmailInModal(email) {
+            // Fallback: Show Gmail-like view in a modal overlay
+            const modal = document.createElement('div');
+            modal.id = 'gmailModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(4px);
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 12px;
+                    width: 90%;
+                    max-width: 800px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+                ">
+                    <div style="
+                        background: #ea4335;
+                        color: white;
+                        padding: 20px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-radius: 12px 12px 0 0;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">📧</span>
+                            <span style="font-weight: 600;">Gmail - Email View</span>
+                        </div>
+                        <button onclick="closeGmailModal()" style="
+                            background: none;
+                            border: none;
+                            color: white;
+                            font-size: 1.5em;
+                            cursor: pointer;
+                        ">&times;</button>
+                    </div>
+                    
+                    <div style="
+                        background: #e8f0fe;
+                        color: #1558d6;
+                        padding: 12px 20px;
+                        text-align: center;
+                        font-size: 14px;
+                        border-bottom: 1px solid #dadce0;
+                    ">
+                        🎯 AvoidanceAI Demo: Simulating Gmail email view (popup was blocked)
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        <div style="
+                            font-size: 20px;
+                            font-weight: 400;
+                            color: #202124;
+                            margin-bottom: 8px;
+                            border-bottom: 1px solid #dadce0;
+                            padding-bottom: 15px;
+                        ">${email.subject}</div>
+                        
+                        <div style="
+                            color: #5f6368;
+                            font-size: 14px;
+                            margin-bottom: 20px;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        ">
+                            <span>${email.from}</span>
+                            <span>${email.date}</span>
+                        </div>
+                        
+                        <div style="
+                            line-height: 1.6;
+                            color: #202124;
+                            margin-bottom: 20px;
+                        ">
+                            ${email.body}
+                        </div>
+                        
+                        <div style="
+                            display: flex;
+                            gap: 12px;
+                            padding-top: 20px;
+                            border-top: 1px solid #dadce0;
+                        ">
+                            <button onclick="alert('Reply functionality would work here in real Gmail!')" style="
+                                background: #1a73e8;
+                                color: white;
+                                border: none;
+                                padding: 8px 16px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 14px;
+                            ">Reply</button>
+                            <button onclick="alert('Forward functionality would work here in real Gmail!')" style="
+                                background: #34a853;
+                                color: white;
+                                border: none;
+                                padding: 8px 16px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 14px;
+                            ">Forward</button>
+                            <button onclick="alert('Archive functionality would work here in real Gmail!')" style="
+                                background: #fbbc04;
+                                color: #202124;
+                                border: none;
+                                padding: 8px 16px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 14px;
+                            ">Archive</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+            
+            // Close on outside click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeGmailModal();
+                }
+            });
+        }
+        
+        function closeGmailModal() {
+            const modal = document.getElementById('gmailModal');
+            if (modal) {
+                modal.remove();
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        function showGmailSuccessMessage(emailSubject) {
+            // Create temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                z-index: 1001;
+                animation: slideIn 0.3s ease;
+                max-width: 350px;
+            `;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">✅</span>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Specific Email Opened</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">
+                            Opened email thread in new window. You can now reply directly!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add slide in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+        
+        // Add some subtle animations for better UX
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to action items
+            const actionItems = document.querySelectorAll('.action-item');
+            actionItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+            
+            // Add keyboard support for modals
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeEmailModal();
+                    closeGmailModal();
+                }
+            });
+        });
+        
+        // Make closeGmailModal globally available
+        window.closeGmailModal = closeGmailModal;
+    </script>
+</body>
+</html>
